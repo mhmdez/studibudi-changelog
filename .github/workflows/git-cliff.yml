@@ -1,0 +1,56 @@
+name: combined-changelog
+on:
+  workflow_dispatch:        # manual run
+  schedule:
+    - cron: "0 */12 * * *"  # twice a day UTC
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out this repo first to get the workspace
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
+
+      # Check out both source repos (full history)
+      - uses: actions/checkout@v4
+        with:
+          repository: mhmdez/studibudi
+          path: studibudi
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      - uses: actions/checkout@v4
+        with:
+          repository: mhmdez/studi-budi-ai-tutor
+          path: studi-budi-ai-tutor
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      # Run git-cliff over both histories
+      - uses: orhun/git-cliff-action@v2
+        with:
+          args: >
+            --repository studibudi
+            --repository studi-budi-ai-tutor
+            --output CHANGELOG.md
+            --tag-order chronological
+            --verbose
+
+      # Commit only if CHANGELOG.md changed
+      - name: Commit changes
+        run: |
+          git config user.name  "cliff-bot"
+          git config user.email "bot@users.noreply.github.com"
+          
+          if ! git diff --quiet CHANGELOG.md; then
+            git add CHANGELOG.md
+            git commit -m "auto: update combined changelog"
+            git push
+          else
+            echo "No changes to CHANGELOG.md"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
