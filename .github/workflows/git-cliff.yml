@@ -30,21 +30,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
 
-      # Debug: Check what we've got
-      - name: Debug repository structure
-        run: |
-          echo "=== Current directory ==="
-          pwd
-          ls -la
-          echo "=== Studibudi directory ==="
-          ls -la studibudi
-          cd studibudi && git log --oneline -5
-          cd ..
-          echo "=== Studi-budi-ai-tutor directory ==="
-          ls -la studi-budi-ai-tutor
-          cd studi-budi-ai-tutor && git log --oneline -5
-          cd ..
-
       # Run git-cliff over both histories
       - uses: orhun/git-cliff-action@v2
         with:
@@ -55,21 +40,66 @@ jobs:
             --output CHANGELOG.md
             --verbose
 
-      # Debug: Check the generated changelog
-      - name: Debug generated changelog
+      # Clean up the changelog for end users
+      - name: Clean up changelog
         run: |
-          echo "=== Generated CHANGELOG.md ==="
-          cat CHANGELOG.md
+          # Create a temporary file for processing
+          cp CHANGELOG.md CHANGELOG.tmp
+          
+          # Remove technical prefixes and make user-friendly
+          sed -i 's/^- feat: /- /' CHANGELOG.tmp
+          sed -i 's/^- feat(.*): /- /' CHANGELOG.tmp
+          sed -i 's/^- fix: /- /' CHANGELOG.tmp
+          sed -i 's/^- fix(.*): /- /' CHANGELOG.tmp
+          sed -i 's/^- perf: /- /' CHANGELOG.tmp
+          sed -i 's/^- perf(.*): /- /' CHANGELOG.tmp
+          
+          # Remove file extensions and paths
+          sed -i 's/\.tsx\?//g' CHANGELOG.tmp
+          sed -i 's/\.jsx\?//g' CHANGELOG.tmp
+          sed -i 's/\.ts//g' CHANGELOG.tmp
+          sed -i 's/\.js//g' CHANGELOG.tmp
+          sed -i 's/\.py//g' CHANGELOG.tmp
+          sed -i 's/\.md//g' CHANGELOG.tmp
+          sed -i 's/\.json//g' CHANGELOG.tmp
+          sed -i 's/\.yml//g' CHANGELOG.tmp
+          sed -i 's/\.yaml//g' CHANGELOG.tmp
+          
+          # Remove common technical terms
+          sed -i 's/component/interface/g' CHANGELOG.tmp
+          sed -i 's/hook/functionality/g' CHANGELOG.tmp
+          sed -i 's/API/service/g' CHANGELOG.tmp
+          sed -i 's/endpoint/feature/g' CHANGELOG.tmp
+          sed -i 's/middleware/system/g' CHANGELOG.tmp
+          sed -i 's/database/data/g' CHANGELOG.tmp
+          sed -i 's/schema/structure/g' CHANGELOG.tmp
+          sed -i 's/migration/update/g' CHANGELOG.tmp
+          
+          # Remove parenthetical technical details
+          sed -i 's/([^)]*\.tsx\?[^)]*)//g' CHANGELOG.tmp
+          sed -i 's/([^)]*\.jsx\?[^)]*)//g' CHANGELOG.tmp
+          sed -i 's/([^)]*\.ts[^)]*)//g' CHANGELOG.tmp
+          sed -i 's/([^)]*\.js[^)]*)//g' CHANGELOG.tmp
+          sed -i 's/([^)]*\.py[^)]*)//g' CHANGELOG.tmp
+          
+          # Capitalize first letter of each line item
+          sed -i 's/^- \([a-z]\)/- \U\1/' CHANGELOG.tmp
+          
+          # Remove empty lines and clean up
+          sed -i '/^$/d' CHANGELOG.tmp
+          
+          # Replace the original file
+          mv CHANGELOG.tmp CHANGELOG.md
 
       # Commit only if CHANGELOG.md changed
       - name: Commit changes
         run: |
-          git config user.name  "cliff-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name  "StudiBudi Bot"
+          git config user.email "bot@studibudi.com"
           
           if ! git diff --quiet CHANGELOG.md; then
             git add CHANGELOG.md
-            git commit -m "auto: update combined changelog"
+            git commit -m "📝 Update changelog with latest changes"
             git push
           else
             echo "No changes to CHANGELOG.md"

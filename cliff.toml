@@ -1,61 +1,90 @@
 [changelog]
 # template for the changelog body
-# https://tera.netlify.app/docs/#introduction
 body = """
-{% if version %}\
-    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
-{% else %}\
-    ## [unreleased]
-{% endif %}\
+# StudiBudi Changelog
+
+*Automatically generated from both [StudiBudi Backend](https://github.com/mhmdez/studibudi) and [StudiBudi AI Tutor](https://github.com/mhmdez/studi-budi-ai-tutor)*
+
+---
+
 {% for group, commits in commits | group_by(attribute="group") %}
-    ### {{ group | striptags | trim | upper_first }}
-    {% for commit in commits %}
-        - {{ commit.message | upper_first }}\
-    {% endfor %}
-{% endfor %}\n
+## {{ group | striptags | trim }}
+
+{% for commit in commits %}
+- {{ commit.message | trim }}
+{% endfor %}
+{% endfor %}
+
+---
+
+*Last updated: {{ "now" | date(format="%Y-%m-%d") }}*
 """
-# remove the leading and trailing whitespace from the template
 trim = true
 
 [git]
-# parse the commits based on https://www.conventionalcommits.org
 conventional_commits = true
-# Include non-conventional commits as well
-filter_unconventional = false
-# process each line of a commit as an individual commit
+filter_unconventional = true
 split_commits = false
-# regex for parsing and extracting the commit text
 commit_parsers = [
-    { message = "^feat", group = "<!-- 0 -->🚀 Features" },
-    { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
-    { message = "^doc", group = "<!-- 2 -->📚 Documentation" },
-    { message = "^perf", group = "<!-- 3 -->⚡ Performance" },
-    { message = "^refactor", group = "<!-- 4 -->🚜 Refactor" },
-    { message = "^style", group = "<!-- 5 -->🎨 Styling" },
-    { message = "^test", group = "<!-- 6 -->🧪 Testing" },
-    { message = "^chore\\(release\\): prepare for", skip = true },
-    { message = "^chore\\(deps\\)", skip = true },
-    { message = "^chore\\(pr\\)", skip = true },
-    { message = "^chore\\(pull\\)", skip = true },
-    { message = "^chore|^ci", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
-    { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
-    { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
-    # Catch all other commits
-    { message = ".*", group = "<!-- 10 -->📝 Other Changes" },
+    # Only include user-facing features
+    { message = "^feat.*[Aa]dd.*", group = "🚀 New Features" },
+    { message = "^feat.*[Ii]ntroduce.*", group = "🚀 New Features" },
+    { message = "^feat.*[Ll]aunch.*", group = "🚀 New Features" },
+    { message = "^feat.*[Ee]nable.*", group = "🚀 New Features" },
+    { message = "^feat.*[Ii]mplement.*", group = "🚀 New Features" },
+    { message = "^feat.*", group = "🚀 New Features" },
+    
+    # User-facing improvements
+    { message = "^fix.*[Ii]mprove.*", group = "✨ Improvements" },
+    { message = "^fix.*[Ee]nhance.*", group = "✨ Improvements" },
+    { message = "^fix.*[Bb]etter.*", group = "✨ Improvements" },
+    { message = "^fix.*[Ff]aster.*", group = "✨ Improvements" },
+    { message = "^fix.*[Oo]ptimize.*", group = "✨ Improvements" },
+    { message = "^fix.*", group = "🐛 Bug Fixes" },
+    
+    # Performance that users will notice
+    { message = "^perf.*", group = "⚡ Performance" },
+    
+    # Skip all technical/internal commits
+    { message = "^chore.*", skip = true },
+    { message = "^ci.*", skip = true },
+    { message = "^build.*", skip = true },
+    { message = "^docs.*", skip = true },
+    { message = "^style.*", skip = true },
+    { message = "^refactor.*", skip = true },
+    { message = "^test.*", skip = true },
+    { message = ".*package.*", skip = true },
+    { message = ".*dependency.*", skip = true },
+    { message = ".*dependencies.*", skip = true },
+    { message = ".*config.*", skip = true },
+    { message = ".*setup.*", skip = true },
+    { message = ".*migration.*", skip = true },
+    { message = ".*release.*", skip = true },
+    { message = ".*version.*", skip = true },
+    { message = ".*bump.*", skip = true },
+    { message = ".*update.*workflow.*", skip = true },
+    { message = ".*github.*", skip = true },
+    { message = ".*action.*", skip = true },
+    { message = ".*eslint.*", skip = true },
+    { message = ".*prettier.*", skip = true },
+    { message = ".*lint.*", skip = true },
+    { message = ".*format.*", skip = true },
+    { message = ".*gitignore.*", skip = true },
+    { message = ".*README.*", skip = true },
+    { message = ".*merge.*", skip = true },
+    { message = ".*Merge.*", skip = true },
+    { message = ".*PR.*", skip = true },
+    { message = ".*pull request.*", skip = true },
+    { message = ".*auto.*", skip = true },
+    { message = ".*automated.*", skip = true },
+    { message = ".*bot.*", skip = true },
 ]
-# protect breaking changes from being skipped due to matching a skipping commit_parser
+
 protect_breaking_commits = false
-# Include all commits, not just those matching parsers
-filter_commits = false
-# regex for matching git tags
+filter_commits = true
 tag_pattern = "v[0-9].*"
-# regex for skipping tags
 skip_tags = ""
-# regex for ignoring tags
 ignore_tags = ""
-# sort the tags topologically
 topo_order = false
-# sort the commits inside sections by oldest/newest order
-sort_commits = "oldest"
-# Don't limit commits - show all
-# limit_commits = 42
+sort_commits = "newest"
+limit_commits = 50  # Limit to recent 50 commits total
