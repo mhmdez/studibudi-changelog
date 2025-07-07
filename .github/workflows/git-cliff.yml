@@ -7,11 +7,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       # Check out this repo first to get the workspace
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
 
       # Check out both source repos (full history)
@@ -29,15 +30,36 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
 
+      # Debug: Check what we've got
+      - name: Debug repository structure
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          ls -la
+          echo "=== Studibudi directory ==="
+          ls -la studibudi
+          cd studibudi && git log --oneline -5
+          cd ..
+          echo "=== Studi-budi-ai-tutor directory ==="
+          ls -la studi-budi-ai-tutor
+          cd studi-budi-ai-tutor && git log --oneline -5
+          cd ..
+
       # Run git-cliff over both histories
       - uses: orhun/git-cliff-action@v2
         with:
+          config: cliff.toml
           args: >
             --repository studibudi
             --repository studi-budi-ai-tutor
             --output CHANGELOG.md
-            --tag-order chronological
             --verbose
+
+      # Debug: Check the generated changelog
+      - name: Debug generated changelog
+        run: |
+          echo "=== Generated CHANGELOG.md ==="
+          cat CHANGELOG.md
 
       # Commit only if CHANGELOG.md changed
       - name: Commit changes
@@ -52,5 +74,3 @@ jobs:
           else
             echo "No changes to CHANGELOG.md"
           fi
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
