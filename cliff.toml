@@ -58,13 +58,6 @@ body = """
 
 ---
 
-### 🔗 Quick Links
-- **📖 [User Guide](https://studibudi.com/docs)** - Learn how to use new features
-- **💬 [Support](https://studibudi.com/support)** - Get help from our team  
-- **📧 [Feedback](mailto:feedback@studibudi.com)** - Tell us what you think
-
----
-
 """
 
 # Footer for the changelog
@@ -141,11 +134,11 @@ split_commits = false
 protect_breaking_commits = false
 filter_commits = false  # Don't filter commits aggressively
 tag_pattern = "v[0-9].*"
-skip_tags = "v0.0.1"
+skip_tags = ""  # Don't skip any tags - include v0.0.1
 ignore_tags = ""
 topo_order = false
 sort_commits = "newest"
-limit_commits = 25  # Show more commits
+limit_commits = 100  # Increased to capture more history including v0.0.1
 
 # More inclusive commit filtering - catch most user-facing work
 commit_parsers = [

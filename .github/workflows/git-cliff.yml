@@ -35,28 +35,56 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Generate raw JSON changelog with git-cliff
-      - uses: orhun/git-cliff-action@v2
-        with:
-          config: cliff.toml
-          args: >
-            --repository studibudi
-            --repository studi-budi-ai-tutor
-            --output CHANGELOG_RAW.json
-            --format json
-            --verbose
+      # Generate JSON changelog with git-cliff - fixed approach
+      - name: Generate JSON changelog with git-cliff
+        run: |
+          # Install git-cliff if not available
+          if ! command -v git-cliff &> /dev/null; then
+            curl -L https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-0.24.2-x86_64-unknown-linux-gnu.tar.gz | tar xz
+            sudo mv git-cliff-*/git-cliff /usr/local/bin/
+          fi
+          
+          # Generate JSON changelog
+          git-cliff \
+            --config cliff.toml \
+            --repository studibudi \
+            --repository studi-budi-ai-tutor \
+            --output CHANGELOG_RAW.json \
+            --format json \
+            --verbose || echo "Git-cliff failed, creating fallback JSON"
+          
+          # Check if file was created, if not create a basic structure
+          if [ ! -f "CHANGELOG_RAW.json" ]; then
+            echo "Creating fallback JSON structure..."
+            echo '[{"version": "unreleased", "commits": []}]' > CHANGELOG_RAW.json
+          fi
+          
+          # Show what we generated
+          echo "Generated JSON file:"
+          ls -la CHANGELOG_RAW.json
+          echo "First few lines:"
+          head -10 CHANGELOG_RAW.json
 
       # Copy the raw JSON for processing
       - name: Copy raw JSON for processing
-        run: cp CHANGELOG_RAW.json "CHANGELOG copy.json"
+        run: |
+          cp CHANGELOG_RAW.json "CHANGELOG copy.json"
+          echo "Copied JSON file for processing"
 
       # Run Python cleanup script to generate clean markdown
       - name: Generate clean changelog
-        run: python3 cleanup_changelog.py
+        run: |
+          echo "Running Python cleanup script..."
+          python3 cleanup_changelog.py
+          echo "Generated CHANGELOG_CLEAN.md:"
+          ls -la CHANGELOG_CLEAN.md
 
       # Use the cleaned changelog as the final output
       - name: Use cleaned changelog
-        run: mv CHANGELOG_CLEAN.md CHANGELOG.md
+        run: |
+          mv CHANGELOG_CLEAN.md CHANGELOG.md
+          echo "Final CHANGELOG.md:"
+          head -20 CHANGELOG.md
 
       # Commit only if CHANGELOG.md changed
       - name: Commit changes

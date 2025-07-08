@@ -217,9 +217,9 @@ def categorize_commit(commit: Dict[str, Any]) -> str:
     
     return '✨ Improvements'  # Default category
 
-def generate_markdown(categories: Dict[str, List[str]], version_info: str = None) -> str:
+def generate_markdown(version_data: List[Dict[str, Any]]) -> str:
     """
-    Generate clean markdown from categorized commits
+    Generate clean markdown from version data with proper version organization
     """
     content = []
     
@@ -231,37 +231,44 @@ def generate_markdown(categories: Dict[str, List[str]], version_info: str = None
     content.append("---")
     content.append("")
     
-    # Add version information if available
-    if version_info:
-        content.append(f"## {version_info}")
-    else:
-        content.append("## Recent Updates")
-    content.append("")
-    
-    # Add categories with content
-    for category, items in categories.items():
-        if items:
-            content.append(f"### {category}")
-            content.append("")
-            
-            # Remove duplicates and sort
-            unique_items = list(set(items))
-            unique_items.sort()
-            
-            for item in unique_items:
-                content.append(f"- {item}")
-            content.append("")
-    
-    # Add message if no content
-    if not any(categories.values()):
-        content.append("### 📝 No Recent Updates")
+    # Process each version
+    for version_info in version_data:
+        version = version_info.get('version', 'Unreleased')
+        categories = version_info.get('categories', {})
+        
+        # Add version header
+        if version and version != 'unreleased':
+            version_clean = version.replace('v', '').strip()
+            content.append(f"## Release {version_clean}")
+        else:
+            content.append("## Recent Updates")
         content.append("")
-        content.append("*The changelog is being processed. Check back soon for the latest updates!*")
+        
+        # Add categories with content
+        has_content = False
+        for category, items in categories.items():
+            if items:
+                has_content = True
+                content.append(f"### {category}")
+                content.append("")
+                
+                # Remove duplicates and sort
+                unique_items = list(set(items))
+                unique_items.sort()
+                
+                for item in unique_items:
+                    content.append(f"- {item}")
+                content.append("")
+        
+        # Add message if no content for this version
+        if not has_content:
+            content.append("*No notable changes in this release.*")
+            content.append("")
+        
+        content.append("---")
         content.append("")
     
     # Footer - only include existing links
-    content.append("---")
-    content.append("")
     content.append("### 🔗 Quick Links")
     content.append("- **📧 [Feedback](mailto:feedback@studibudi.com)** - Tell us what you think")
     content.append("")
@@ -273,7 +280,7 @@ def generate_markdown(categories: Dict[str, List[str]], version_info: str = None
 
 def process_changelog(json_file: str, output_file: str):
     """
-    Process the JSON changelog and create a clean markdown file
+    Process the JSON changelog and create a clean markdown file with version organization
     """
     try:
         with open(json_file, 'r', encoding='utf-8') as f:
@@ -285,34 +292,32 @@ def process_changelog(json_file: str, output_file: str):
         print(f"Error: Invalid JSON in {json_file}")
         return
     
-    # Group commits by category
-    categories = {
-        '🚀 New Features': [],
-        '✨ Improvements': [],
-        '🐛 Bug Fixes': [],
-        '⚡ Performance': []
-    }
-    
     total_commits = 0
     filtered_commits = 0
-    version_info = None
+    processed_versions = []
     
     # Process each version
     for version_data in changelog_data:
-        # Get version information from the first version
-        if version_info is None and 'version' in version_data:
-            version = version_data['version']
-            if version and version != 'unreleased':
-                # Clean up version string
-                version_clean = version.replace('v', '').strip()
-                if version_clean:
-                    version_info = f"Release {version_clean}"
-        
+        version = version_data.get('version', 'unreleased')
         commits = version_data.get('commits', [])
-        total_commits += len(commits)
+        
+        # Group commits by category for this version
+        categories = {
+            '🚀 New Features': [],
+            '✨ Improvements': [],
+            '🐛 Bug Fixes': [],
+            '⚡ Performance': []
+        }
+        
+        version_total = len(commits)
+        version_filtered = 0
+        total_commits += version_total
+        
+        print(f"\n📦 Processing {version} ({version_total} commits)")
         
         for commit in commits:
             if is_meaningless_commit(commit):
+                version_filtered += 1
                 filtered_commits += 1
                 continue
             
@@ -320,34 +325,65 @@ def process_changelog(json_file: str, output_file: str):
             
             # Skip if message becomes empty after cleaning
             if not cleaned_message or len(cleaned_message) < 5:
+                version_filtered += 1
                 filtered_commits += 1
                 continue
             
             # More lenient user-facing check
             if not is_user_facing_feature(cleaned_message):
+                version_filtered += 1
                 filtered_commits += 1
                 continue
             
             category = categorize_commit(commit)
             categories[category].append(cleaned_message)
+        
+        # Add this version's data if it has meaningful content
+        version_items = sum(len(items) for items in categories.values())
+        if version_items > 0:
+            processed_versions.append({
+                'version': version,
+                'categories': categories
+            })
+            print(f"   ✅ Kept {version_items} items (filtered {version_filtered})")
+        else:
+            print(f"   🗑️  No meaningful changes found")
     
-    # Generate markdown with version info
-    markdown_content = generate_markdown(categories, version_info)
+    # If no versions have content, create a fallback
+    if not processed_versions:
+        print("⚠️  No meaningful content found, creating placeholder")
+        processed_versions.append({
+            'version': 'unreleased',
+            'categories': {
+                '🚀 New Features': [],
+                '✨ Improvements': [],
+                '🐛 Bug Fixes': [],
+                '⚡ Performance': []
+            }
+        })
+    
+    # Generate markdown with version organization
+    markdown_content = generate_markdown(processed_versions)
     
     # Write to file
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(markdown_content)
     
-    print(f"✅ Processed {total_commits} commits")
+    print(f"\n✅ Processed {total_commits} commits across {len(changelog_data)} versions")
     print(f"🗑️  Filtered out {filtered_commits} meaningless commits")
     print(f"📝 Generated clean changelog: {output_file}")
-    if version_info:
-        print(f"📦 Version: {version_info}")
+    print(f"📦 Included {len(processed_versions)} versions with content")
     
-    # Show category breakdown
-    for category, items in categories.items():
-        if items:
-            print(f"{category}: {len(items)} items")
+    # Show breakdown by version
+    for version_info in processed_versions:
+        version = version_info['version']
+        categories = version_info['categories']
+        total_items = sum(len(items) for items in categories.values())
+        if total_items > 0:
+            print(f"\n{version}:")
+            for category, items in categories.items():
+                if items:
+                    print(f"  {category}: {len(items)} items")
 
 if __name__ == "__main__":
     # Process the changelog
