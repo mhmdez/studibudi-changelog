@@ -35,41 +35,35 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Generate JSON changelog with git-cliff - fixed approach
+      # Generate JSON changelog with git-cliff using official action
       - name: Generate JSON changelog with git-cliff
-        run: |
-          # Install git-cliff if not available
-          if ! command -v git-cliff &> /dev/null; then
-            curl -L https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-0.24.2-x86_64-unknown-linux-gnu.tar.gz | tar xz
-            sudo mv git-cliff-*/git-cliff /usr/local/bin/
-          fi
-          
-          # Generate JSON changelog
-          git-cliff \
-            --config cliff.toml \
-            --repository studibudi \
-            --repository studi-budi-ai-tutor \
-            --output CHANGELOG_RAW.json \
-            --format json \
-            --verbose || echo "Git-cliff failed, creating fallback JSON"
-          
-          # Check if file was created, if not create a basic structure
-          if [ ! -f "CHANGELOG_RAW.json" ]; then
-            echo "Creating fallback JSON structure..."
-            echo '[{"version": "unreleased", "commits": []}]' > CHANGELOG_RAW.json
-          fi
-          
-          # Show what we generated
-          echo "Generated JSON file:"
-          ls -la CHANGELOG_RAW.json
-          echo "First few lines:"
-          head -10 CHANGELOG_RAW.json
+        uses: orhun/git-cliff-action@v2
+        with:
+          config: cliff.toml
+          args: >
+            --repository studibudi
+            --repository studi-budi-ai-tutor
+            --output CHANGELOG_RAW.json
+            --format json
+            --verbose
+        env:
+          OUTPUT: CHANGELOG_RAW.json
 
-      # Copy the raw JSON for processing
+      # Verify and copy the raw JSON for processing
       - name: Copy raw JSON for processing
         run: |
-          cp CHANGELOG_RAW.json "CHANGELOG copy.json"
-          echo "Copied JSON file for processing"
+          echo "Checking if CHANGELOG_RAW.json exists..."
+          if [ -f "CHANGELOG_RAW.json" ]; then
+            echo "✅ JSON file found!"
+            ls -la CHANGELOG_RAW.json
+            echo "First few lines:"
+            head -10 CHANGELOG_RAW.json
+            cp CHANGELOG_RAW.json "CHANGELOG copy.json"
+            echo "✅ Copied JSON file for processing"
+          else
+            echo "❌ JSON file not found, creating fallback..."
+            echo '[{"version": "unreleased", "commits": []}]' > "CHANGELOG copy.json"
+          fi
 
       # Run Python cleanup script to generate clean markdown
       - name: Generate clean changelog
