@@ -1,23 +1,45 @@
 [changelog]
-# template for the changelog body
 body = """
-# StudiBudi Changelog
+# 📚 StudiBudi Product Updates
 
-*Automatically generated from both [StudiBudi Backend](https://github.com/mhmdez/studibudi) and [StudiBudi AI Tutor](https://github.com/mhmdez/studi-budi-ai-tutor)*
+*Your AI-powered study companion keeps getting better! Here's what's new for students and educators.*
 
 ---
-
 {% for group, commits in commits | group_by(attribute="group") %}
-## {{ group | striptags | trim }}
+{% if group == "🚀 Major Features" %}
+## 🚀 Major New Features
 
 {% for commit in commits %}
 - {{ commit.message | trim }}
 {% endfor %}
+
+{% elif group == "✨ Improvements" %}
+## ✨ Notable Improvements
+
+{% for commit in commits %}
+- {{ commit.message | trim }}
+{% endfor %}
+
+{% elif group == "⚡ Performance" %}
+## ⚡ Performance Enhancements
+
+{% for commit in commits %}
+- {{ commit.message | trim }}
+{% endfor %}
+
+{% endif %}
 {% endfor %}
 
 ---
 
-*Last updated: {{ "now" | date(format="%Y-%m-%d") }}*
+### 🔗 Quick Links
+- **📖 [User Guide](https://studibudi.com/docs)** - Learn how to use new features
+- **💬 [Support](https://studibudi.com/support)** - Get help from our team  
+- **📧 [Feedback](mailto:feedback@studibudi.com)** - Tell us what you think
+
+---
+
+*Updated automatically • Last refresh: {{ "now" | date(format="%B %d, %Y") }}*
 """
 trim = true
 
@@ -26,58 +48,67 @@ conventional_commits = true
 filter_unconventional = true
 split_commits = false
 commit_parsers = [
-    # Only include user-facing features
-    { message = "^feat.*[Aa]dd.*", group = "🚀 New Features" },
-    { message = "^feat.*[Ii]ntroduce.*", group = "🚀 New Features" },
-    { message = "^feat.*[Ll]aunch.*", group = "🚀 New Features" },
-    { message = "^feat.*[Ee]nable.*", group = "🚀 New Features" },
-    { message = "^feat.*[Ii]mplement.*", group = "🚀 New Features" },
-    { message = "^feat.*", group = "🚀 New Features" },
+    # MAJOR FEATURES ONLY - Core functionality users will love
+    { message = "^feat.*[Vv]oice.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Aa]udio.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Cc]hat.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Tt]utor.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Aa]I.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Pp]ersonaliz.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Ll]earning.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Ss]tudy.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Dd]ashboard.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Pp]rogress.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Qq]uiz.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Nn]ote.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Ss]ession.*", group = "🚀 Major Features" },
+    { message = "^feat.*[Mm]obile.*", group = "🚀 Major Features" },
     
-    # User-facing improvements
-    { message = "^fix.*[Ii]mprove.*", group = "✨ Improvements" },
-    { message = "^fix.*[Ee]nhance.*", group = "✨ Improvements" },
-    { message = "^fix.*[Bb]etter.*", group = "✨ Improvements" },
-    { message = "^fix.*[Ff]aster.*", group = "✨ Improvements" },
-    { message = "^fix.*[Oo]ptimize.*", group = "✨ Improvements" },
-    { message = "^fix.*", group = "🐛 Bug Fixes" },
+    # MAJOR UI/UX IMPROVEMENTS - Visible changes users notice
+    { message = "^feat.*[Uu]I.*", group = "✨ Improvements" },
+    { message = "^feat.*[Ii]nterface.*", group = "✨ Improvements" },
+    { message = "^feat.*[Dd]esign.*", group = "✨ Improvements" },
+    { message = "^feat.*[Nn]avigation.*", group = "✨ Improvements" },
+    { message = "^feat.*[Rr]esponsive.*", group = "✨ Improvements" },
+    { message = "^fix.*[Ii]mprove.*[Uu]ser.*", group = "✨ Improvements" },
+    { message = "^fix.*[Ee]nhance.*[Ee]xperience.*", group = "✨ Improvements" },
+    { message = "^fix.*[Bb]etter.*[Ii]nterface.*", group = "✨ Improvements" },
     
-    # Performance that users will notice
-    { message = "^perf.*", group = "⚡ Performance" },
-    
-    # Skip all technical/internal commits
-    { message = "^chore.*", skip = true },
-    { message = "^ci.*", skip = true },
-    { message = "^build.*", skip = true },
-    { message = "^docs.*", skip = true },
-    { message = "^style.*", skip = true },
-    { message = "^refactor.*", skip = true },
-    { message = "^test.*", skip = true },
-    { message = ".*package.*", skip = true },
-    { message = ".*dependency.*", skip = true },
-    { message = ".*dependencies.*", skip = true },
-    { message = ".*config.*", skip = true },
-    { message = ".*setup.*", skip = true },
-    { message = ".*migration.*", skip = true },
-    { message = ".*release.*", skip = true },
-    { message = ".*version.*", skip = true },
-    { message = ".*bump.*", skip = true },
-    { message = ".*update.*workflow.*", skip = true },
-    { message = ".*github.*", skip = true },
-    { message = ".*action.*", skip = true },
-    { message = ".*eslint.*", skip = true },
-    { message = ".*prettier.*", skip = true },
-    { message = ".*lint.*", skip = true },
-    { message = ".*format.*", skip = true },
-    { message = ".*gitignore.*", skip = true },
-    { message = ".*README.*", skip = true },
-    { message = ".*merge.*", skip = true },
-    { message = ".*Merge.*", skip = true },
-    { message = ".*PR.*", skip = true },
-    { message = ".*pull request.*", skip = true },
-    { message = ".*auto.*", skip = true },
-    { message = ".*automated.*", skip = true },
-    { message = ".*bot.*", skip = true },
+    # PERFORMANCE - Only major speed/efficiency gains
+    { message = "^perf.*[Ff]aster.*", group = "⚡ Performance" },
+    { message = "^perf.*[Ss]peed.*", group = "⚡ Performance" },
+    { message = "^perf.*[Oo]ptimiz.*", group = "⚡ Performance" },
+    { message = "^fix.*[Ff]aster.*", group = "⚡ Performance" },
+    { message = "^fix.*[Ss]low.*", group = "⚡ Performance" },
+    { message = "^fix.*[Pp]erformance.*", group = "⚡ Performance" },
+
+    # SKIP EVERYTHING ELSE - Be ultra-selective
+    { message = "^fix.*", skip = true },          # Regular bug fixes
+    { message = "^chore.*", skip = true },        # Technical maintenance  
+    { message = "^ci.*", skip = true },           # CI/CD changes
+    { message = "^build.*", skip = true },        # Build process
+    { message = "^docs.*", skip = true },         # Documentation
+    { message = "^style.*", skip = true },        # Code style
+    { message = "^refactor.*", skip = true },     # Code refactoring
+    { message = "^test.*", skip = true },         # Testing
+    { message = "^feat.*[Tt]est.*", skip = true }, # Testing features
+    { message = "^feat.*[Dd]ev.*", skip = true },  # Developer features
+    { message = "^feat.*[Aa]dmin.*", skip = true }, # Admin features
+    { message = "^feat.*[Cc]onfig.*", skip = true }, # Configuration
+    { message = "^feat.*[Ss]etup.*", skip = true }, # Setup/installation
+    { message = "^feat.*[Ll]og.*", skip = true },   # Logging
+    { message = "^feat.*[Dd]ebug.*", skip = true }, # Debugging
+    { message = "^feat.*[Aa]pi.*", skip = true },   # API changes
+    { message = "^feat.*[Dd]atabase.*", skip = true }, # Database changes
+    { message = "^feat.*[Cc]omponent.*", skip = true }, # Small components
+    { message = "^feat.*[Uu]til.*", skip = true },  # Utility functions
+    { message = "^feat.*[Hh]ook.*", skip = true },  # React hooks
+    { message = "^feat.*[Hh]elper.*", skip = true }, # Helper functions
+    { message = ".*[Mm]erge.*", skip = true },      # Merge commits
+    { message = ".*[Bb]ump.*", skip = true },       # Version bumps
+    { message = ".*[Uu]pdate.*[Dd]ependenc.*", skip = true }, # Dependencies
+    { message = ".*[Rr]elease.*", skip = true },    # Release commits
+    { message = ".*[Aa]uto.*", skip = true },       # Automated commits
 ]
 
 protect_breaking_commits = false
@@ -87,4 +118,4 @@ skip_tags = ""
 ignore_tags = ""
 topo_order = false
 sort_commits = "newest"
-limit_commits = 50  # Limit to recent 50 commits total
+limit_commits = 15  # Ultra-selective - only show ~15 major items 

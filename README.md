@@ -1,108 +1,129 @@
-# StudiBudi Combined Changelog
+# 📚 StudiBudi Product Changelog
 
-This repository automatically generates and maintains a unified changelog for both StudiBudi repositories:
+This repository automatically generates a **professional product changelog** for StudiBudi's AI-powered learning platform, combining updates from both repositories:
 
 - **Backend**: [github.com/mhmdez/studibudi](https://github.com/mhmdez/studibudi)
 - **Frontend**: [github.com/mhmdez/studi-budi-ai-tutor](https://github.com/mhmdez/studi-budi-ai-tutor)
 
-## 📋 View the Changelog
+## 📋 View the Live Changelog
 
-The changelog is automatically published via GitHub Pages:
+**🔗 [StudiBudi Product Updates](https://mhmdez.github.io/studibudi-changelog/CHANGELOG.md)**
 
-**🔗 [View Live Changelog](https://mhmdez.github.io/studibudi-changelog/CHANGELOG.md)**
+*Professional changelog designed for students, educators, and stakeholders*
 
-## 🤖 How It Works
+## 🎯 What Makes This Special
 
-This repository uses [git-cliff](https://git-cliff.org/) to automatically:
+### Ultra-Selective Content
+Only **major user-facing updates** are included:
 
-1. **Fetch** the complete git history from both repositories
-2. **Parse** conventional commits (feat:, fix:, chore:, etc.)
-3. **Generate** a unified changelog in reverse chronological order
-4. **Update** the changelog twice daily via GitHub Actions
+- 🚀 **Major New Features** - Core functionality like voice chat, AI tutoring, personalized learning
+- ✨ **Notable Improvements** - UI/UX enhancements, better navigation, mobile optimization  
+- ⚡ **Performance Enhancements** - Speed improvements users actually notice
 
-## ⚙️ Configuration
+### Professional Presentation
+- **User-friendly descriptions** instead of technical commit messages
+- **Product marketing language** that explains benefits to users
+- **Clean formatting** with emojis and proper categorization
+- **Quick links** to documentation and support
 
-### Schedule
-The changelog updates automatically every 12 hours (twice daily) via GitHub Actions.
+## 🚫 What's Filtered Out
 
-### Commit Parsing
-The configuration in `cliff.toml` categorizes commits into:
+Technical noise is completely removed:
+- ❌ Bug fixes and minor tweaks
+- ❌ Code refactoring and internal changes
+- ❌ Developer tooling and build processes
+- ❌ Documentation and testing updates
+- ❌ File names, technical jargon, and commit hashes
+- ❌ Administrative and configuration changes
 
-- 🚀 **Features** (`feat:`)
-- 🐛 **Bug Fixes** (`fix:`) 
-- 📚 **Documentation** (`doc:`)
-- ⚡ **Performance** (`perf:`)
-- �� **Refactor** (`refactor:`)
-- 🎨 **Styling** (`style:`)
-- 🧪 **Testing** (`test:`)
-- ⚙️ **Miscellaneous Tasks** (`chore:`, `ci:`)
-- 🛡️ **Security** (any commit mentioning security)
-- ◀️ **Revert** (`revert:`)
+## 🔄 Automated Transformation
 
-## 🔧 Manual Operations
+The system intelligently transforms technical commits into user-friendly descriptions:
 
-### Trigger Manual Update
-1. Go to **Actions** → **combined-changelog**
-2. Click **Run workflow**
-3. The changelog will update within a few minutes
-
-### Modify Update Schedule
-Edit the cron expression in `.github/workflows/git-cliff.yml`:
-
-```yaml
-schedule:
-  - cron: "0 */12 * * *"  # Current: every 12 hours
-  # - cron: "0 6 * * *"   # Alternative: daily at 6 AM UTC
-  # - cron: "0 */6 * * *"  # Alternative: every 6 hours
+**Before:**
+```
+feat: implement voice interaction with AI tutor using WebRTC
 ```
 
-### Customize Commit Categories
-Edit `cliff.toml` to modify how commits are categorized:
-
-```toml
-commit_parsers = [
-    { message = "^feat", group = "<!-- 0 -->🚀 Features" },
-    { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
-    # Add custom patterns here
-]
+**After:**
+```
+🎙️ Voice Chat with AI Tutor - Have natural conversations while studying
 ```
 
-## 🔑 Required Secrets
+## ⚙️ How It Works
 
-This repository requires a GitHub Personal Access Token with `repo:read` scope:
+1. **Scans** both repositories every 12 hours
+2. **Filters** for only major user-facing features
+3. **Transforms** commit messages into product descriptions
+4. **Publishes** to GitHub Pages automatically
+5. **Limits** to ~15 most important recent updates
 
-1. **Create Token**: GitHub Settings → Developer Settings → Personal Access Tokens → Tokens (classic)
-2. **Permissions**: Select only `repo` scope
-3. **Add Secret**: Repository Settings → Secrets and Variables → Actions → New repository secret
-4. **Name**: `GH_TOKEN`
+## 🔧 Configuration
 
-## 🚀 Zero Maintenance
+### Ultra-Selective Filtering
+The `cliff.toml` configuration targets specific keywords:
+- Voice, audio, chat, tutor, AI capabilities
+- Learning, study, personalization features  
+- Dashboard, progress, quiz functionality
+- Major UI, interface, and design updates
+- Performance improvements users notice
 
-Once set up, this system requires **no manual maintenance**:
+### Professional Descriptions
+The workflow transforms technical terms:
+- `component` → `feature`
+- `API` → `service` 
+- `database` → `data`
+- Removes file extensions and technical paths
+- Adds emoji and professional language
 
-- ✅ Automatically fetches new commits from both repositories
-- ✅ Generates changelog in standardized format
-- ✅ Updates GitHub Pages automatically
-- ✅ Costs $0 to run
-- ✅ Works with any number of repositories
+## 🎨 Example Output
 
-## 🔍 Troubleshooting
+```markdown
+# 📚 StudiBudi Product Updates
 
-### Changelog Not Updating
-- Check that the GitHub Action is running successfully
-- Verify the `GH_TOKEN` secret has proper permissions
-- Ensure both source repositories are accessible
+## 🚀 Major New Features
+- 🎙️ **Voice Chat with AI Tutor** - Have natural conversations while studying
+- 📊 **Progress Tracking** - See your learning journey and achievements
 
-### Missing Commits
-- Verify commits follow conventional commit format
-- Check `cliff.toml` for filtering rules
-- Ensure commits aren't being skipped by configuration
+## ✨ Notable Improvements  
+- 📱 **Mobile Optimization** - Perfect experience on any device
+- 🧭 **Easier Navigation** - Find what you need faster
 
-### GitHub Pages Not Working
-- Verify Pages is enabled in repository Settings
-- Check that the source is set to "Deploy from a branch: main / (root)"
-- Ensure `CHANGELOG.md` exists in the repository root
+## ⚡ Performance Enhancements
+- ⚡ **Faster Performance** - Everything loads and responds quicker
+```
+
+## 🚀 Benefits for Different Audiences
+
+### For Students & Educators
+- Clear understanding of new features
+- No technical complexity
+- Focus on learning benefits
+
+### For Product Teams
+- Professional changelog for stakeholders
+- Marketing-ready descriptions
+- Automated maintenance
+
+### For Investors & Partners
+- Clean overview of product evolution
+- Professional presentation
+- Evidence of continuous improvement
+
+## 🔑 Setup Requirements
+
+Requires a GitHub Personal Access Token with `repo:read` scope:
+1. Create token with `repo` permissions only
+2. Add as `GH_TOKEN` secret in repository settings
+3. Workflow runs automatically every 12 hours
+
+## 🔍 Manual Control
+
+- **Trigger manually**: Actions → combined-changelog → Run workflow
+- **Adjust frequency**: Edit cron schedule in workflow file
+- **Modify filtering**: Update keyword patterns in `cliff.toml`
+- **Change descriptions**: Edit transformation rules in workflow
 
 ---
 
-*Last updated: Automatically via GitHub Actions*
+*Professional product changelog • Updated automatically • Zero maintenance* 
