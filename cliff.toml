@@ -14,29 +14,43 @@ body = """
 {% if version -%}
 ## {{ version | trim_start_matches(pat="v") }} - {{ timestamp | date(format="%B %d, %Y") }}
 {% else -%}
-## Latest Updates
+## Recent Updates
 {% endif -%}
 
 {% for group, commits in commits | group_by(attribute="group") -%}
-{% if group == "🚀 Major Features" -%}
-### 🚀 Major New Features
+{% if group == "🚀 New Features" -%}
+### 🚀 New Features
 
 {% for commit in commits -%}
-- {{ commit.message | upper | replace(from="FEAT: ", to="") | replace(from="FEAT(", to="") | replace(from="): ", to=": ") | replace(from="VOICE", to="🎙️ Voice Chat") | replace(from="AUDIO", to="🔊 Audio") | replace(from="CHAT", to="💬 Chat") | replace(from="AI", to="🤖 AI") | replace(from="TUTOR", to="👨‍🏫 Tutor") | replace(from="LEARNING", to="📚 Learning") | replace(from="STUDY", to="📖 Study") | replace(from="DASHBOARD", to="📊 Dashboard") | replace(from="PROGRESS", to="📈 Progress") | replace(from="QUIZ", to="🧠 Quiz") | replace(from="MOBILE", to="📱 Mobile") | replace(from="PERSONALI", to="🎯 Personali") | title }}
+- {{ commit.message | trim }}
 {% endfor -%}
 
 {% elif group == "✨ Improvements" -%}
-### ✨ Notable Improvements
+### ✨ Improvements & Enhancements
 
 {% for commit in commits -%}
-- {{ commit.message | upper | replace(from="FEAT: ", to="") | replace(from="FIX: ", to="") | replace(from="UI", to="🎨 Interface") | replace(from="UX", to="✨ Experience") | replace(from="DESIGN", to="🎨 Design") | replace(from="NAVIGATION", to="🧭 Navigation") | replace(from="RESPONSIVE", to="📱 Mobile-Friendly") | title }}
+- {{ commit.message | trim }}
+{% endfor -%}
+
+{% elif group == "🐛 Bug Fixes" -%}
+### 🐛 Bug Fixes
+
+{% for commit in commits -%}
+- {{ commit.message | trim }}
 {% endfor -%}
 
 {% elif group == "⚡ Performance" -%}
-### ⚡ Performance Enhancements
+### ⚡ Performance & Optimization
 
 {% for commit in commits -%}
-- {{ commit.message | upper | replace(from="PERF: ", to="") | replace(from="FIX: ", to="") | replace(from="FASTER", to="⚡ Faster") | replace(from="SPEED", to="🚀 Speed") | replace(from="OPTIMIZ", to="⚡ Optimized") | replace(from="PERFORMANCE", to="⚡ Performance") | title }}
+- {{ commit.message | trim }}
+{% endfor -%}
+
+{% elif group == "🔧 Technical" -%}
+### 🔧 Technical Updates
+
+{% for commit in commits -%}
+- {{ commit.message | trim }}
 {% endfor -%}
 
 {% endif -%}
@@ -59,93 +73,148 @@ footer = """
 """
 
 trim = true
+
+# Clean up technical terms and make user-friendly
 postprocessors = [
+    # Remove conventional commit prefixes
+    { pattern = '^feat(\([^)]*\))?\s*:\s*', replace = "" },
+    { pattern = '^fix(\([^)]*\))?\s*:\s*', replace = "" },
+    { pattern = '^perf(\([^)]*\))?\s*:\s*', replace = "" },
+    { pattern = '^chore(\([^)]*\))?\s*:\s*', replace = "" },
+    { pattern = '^docs(\([^)]*\))?\s*:\s*', replace = "" },
+    { pattern = '^style(\([^)]*\))?\s*:\s*', replace = "" },
+    { pattern = '^refactor(\([^)]*\))?\s*:\s*', replace = "" },
+    { pattern = '^test(\([^)]*\))?\s*:\s*', replace = "" },
+    { pattern = '^build(\([^)]*\))?\s*:\s*', replace = "" },
+    { pattern = '^ci(\([^)]*\))?\s*:\s*', replace = "" },
+    
     # Clean up technical terms
-    { pattern = '(?i)feat:', replace = "" },
-    { pattern = '(?i)fix:', replace = "" },
-    { pattern = '(?i)perf:', replace = "" },
-    { pattern = '(?i)component', replace = "feature" },
-    { pattern = '(?i)api', replace = "service" },
-    { pattern = '(?i)database', replace = "data" },
-    { pattern = '(?i)config', replace = "settings" },
-    { pattern = '(?i)implement', replace = "add" },
-    { pattern = '(?i)functionality', replace = "feature" },
-    { pattern = '(?i)\.tsx?', replace = "" },
-    { pattern = '(?i)\.jsx?', replace = "" },
-    { pattern = '(?i)\.py', replace = "" },
-    { pattern = '(?i)\.ts', replace = "" },
-    { pattern = '(?i)\.js', replace = "" },
-    # Remove file paths and technical references
-    { pattern = 'src/.*?/', replace = "" },
-    { pattern = 'components/.*?/', replace = "" },
-    { pattern = 'pages/.*?/', replace = "" },
-    { pattern = 'hooks/.*?/', replace = "" },
-    { pattern = 'lib/.*?/', replace = "" },
-    { pattern = 'utils/.*?/', replace = "" },
+    { pattern = '(?i)\bcomponent\b', replace = "interface" },
+    { pattern = '(?i)\bapi\b', replace = "service" },
+    { pattern = '(?i)\bdatabase\b', replace = "data storage" },
+    { pattern = '(?i)\bconfig\b', replace = "configuration" },
+    { pattern = '(?i)\bimplement\b', replace = "add" },
+    { pattern = '(?i)\bfunctionality\b', replace = "feature" },
+    { pattern = '(?i)\bendpoint\b', replace = "service" },
+    { pattern = '(?i)\bmiddleware\b', replace = "system" },
+    { pattern = '(?i)\bschema\b', replace = "structure" },
+    { pattern = '(?i)\bmigration\b', replace = "update" },
+    { pattern = '(?i)\bwebsocket\b', replace = "real-time connection" },
+    { pattern = '(?i)\bauth\b', replace = "authentication" },
+    { pattern = '(?i)\bui\b', replace = "interface" },
+    { pattern = '(?i)\bux\b', replace = "user experience" },
+    
+    # Remove file extensions
+    { pattern = '\.tsx?', replace = "" },
+    { pattern = '\.jsx?', replace = "" },
+    { pattern = '\.py', replace = "" },
+    { pattern = '\.md', replace = "" },
+    { pattern = '\.json', replace = "" },
+    { pattern = '\.ya?ml', replace = "" },
+    { pattern = '\.css', replace = "" },
+    { pattern = '\.scss', replace = "" },
+    
+    # Remove common file paths
+    { pattern = 'src/', replace = "" },
+    { pattern = 'components/', replace = "" },
+    { pattern = 'pages/', replace = "" },
+    { pattern = 'hooks/', replace = "" },
+    { pattern = 'lib/', replace = "" },
+    { pattern = 'utils/', replace = "" },
+    { pattern = 'backend/', replace = "" },
+    { pattern = 'frontend/', replace = "" },
+    
+    # Remove PR numbers and technical references
+    { pattern = '\s*\(#\d+\)', replace = "" },
+    { pattern = '\s*closes?\s+#\d+', replace = "" },
+    { pattern = '\s*fixes?\s+#\d+', replace = "" },
+    { pattern = '\s*refs?\s+#\d+', replace = "" },
+    
+    # Capitalize first letter
+    { pattern = '^([a-z])', replace = "${1}" },
 ]
 
 [git]
 conventional_commits = true
-filter_unconventional = true
+filter_unconventional = false  # Include non-conventional commits
 split_commits = false
 protect_breaking_commits = false
-filter_commits = true
+filter_commits = false  # Don't filter commits aggressively
 tag_pattern = "v[0-9].*"
 skip_tags = "v0.0.1"
 ignore_tags = ""
 topo_order = false
 sort_commits = "newest"
-limit_commits = 10  # Only show 10 most important items
+limit_commits = 25  # Show more commits
 
-# Ultra-selective commit filtering - only major user-facing features
+# More inclusive commit filtering - catch most user-facing work
 commit_parsers = [
-    # === MAJOR FEATURES - Only the big stuff users care about ===
-    { message = "^feat.*([Vv]oice|[Aa]udio).*([Cc]hat|[Tt]alk|[Ss]peak)", group = "🚀 Major Features" },
-    { message = "^feat.*[Aa]I.*([Tt]utor|[Cc]hat|[Aa]ssistant)", group = "🚀 Major Features" },
-    { message = "^feat.*([Pp]ersonali|[Cc]ustom|[Aa]daptive).*[Ll]earning", group = "🚀 Major Features" },
-    { message = "^feat.*([Dd]ashboard|[Pp]rogress|[Aa]nalytics)", group = "🚀 Major Features" },
-    { message = "^feat.*([Qq]uiz|[Tt]est|[Aa]ssessment)", group = "🚀 Major Features" },
-    { message = "^feat.*([Nn]ote|[Aa]nnotation|[Hh]ighlight)", group = "🚀 Major Features" },
-    { message = "^feat.*([Ss]tudy|[Ll]earning).*([Ss]ession|[Mm]ode)", group = "🚀 Major Features" },
-    { message = "^feat.*[Mm]obile.*([Aa]pp|[Ss]upport|[Oo]ptimi)", group = "🚀 Major Features" },
+    # === NEW FEATURES - Much broader patterns ===
+    { message = "^feat", group = "🚀 New Features" },
+    { message = "^add", group = "🚀 New Features" },
+    { message = "^create", group = "🚀 New Features" },
+    { message = "^implement", group = "🚀 New Features" },
+    { message = "^introduce", group = "🚀 New Features" },
+    { message = ".*[Nn]ew.*", group = "🚀 New Features" },
+    { message = ".*[Aa]dd.*", group = "🚀 New Features" },
     
-    # === IMPROVEMENTS - Only major UI/UX changes ===
-    { message = "^feat.*([Uu]I|[Ii]nterface).*([Rr]edesign|[Ii]mprove)", group = "✨ Improvements" },
-    { message = "^feat.*([Nn]avigation|[Mm]enu).*([Ii]mprove|[Ee]nhance)", group = "✨ Improvements" },
-    { message = "^feat.*([Rr]esponsive|[Mm]obile).*([Dd]esign|[Ll]ayout)", group = "✨ Improvements" },
-    { message = "^feat.*([Dd]ark|[Ll]ight).*[Mm]ode", group = "✨ Improvements" },
-    { message = "^feat.*([Aa]ccessibility|[Aa]11y)", group = "✨ Improvements" },
+    # === IMPROVEMENTS - UI/UX and enhancements ===
+    { message = "^improve", group = "✨ Improvements" },
+    { message = "^enhance", group = "✨ Improvements" },
+    { message = "^update", group = "✨ Improvements" },
+    { message = "^upgrade", group = "✨ Improvements" },
+    { message = "^optimize", group = "✨ Improvements" },
+    { message = "^refactor", group = "✨ Improvements" },
+    { message = ".*[Ii]mprove.*", group = "✨ Improvements" },
+    { message = ".*[Ee]nhance.*", group = "✨ Improvements" },
+    { message = ".*[Bb]etter.*", group = "✨ Improvements" },
+    { message = ".*[Uu]pdate.*", group = "✨ Improvements" },
     
-    # === PERFORMANCE - Only major speed improvements ===
-    { message = "^perf.*([Ff]aster|[Ss]peed|[Qq]uick)", group = "⚡ Performance" },
-    { message = "^perf.*([Oo]ptimi|[Ii]mprove).*([Ll]oad|[Rr]ender)", group = "⚡ Performance" },
-    { message = "^fix.*([Ss]low|[Ll]ag|[Pp]erformance)", group = "⚡ Performance" },
+    # === BUG FIXES - Include more fixes ===
+    { message = "^fix", group = "🐛 Bug Fixes" },
+    { message = "^resolve", group = "🐛 Bug Fixes" },
+    { message = "^correct", group = "🐛 Bug Fixes" },
+    { message = ".*[Ff]ix.*", group = "🐛 Bug Fixes" },
+    { message = ".*[Rr]esolve.*", group = "🐛 Bug Fixes" },
+    { message = ".*[Cc]orrect.*", group = "🐛 Bug Fixes" },
+    { message = ".*[Bb]ugfix.*", group = "🐛 Bug Fixes" },
     
-    # === SKIP EVERYTHING ELSE ===
-    { message = "^feat.*([Tt]est|[Dd]ev|[Aa]dmin|[Cc]onfig|[Ss]etup)", skip = true },
-    { message = "^feat.*([Ll]og|[Dd]ebug|[Aa]pi|[Dd]atabase|[Bb]ackend)", skip = true },
-    { message = "^feat.*([Cc]omponent|[Uu]til|[Hh]ook|[Hh]elper)", skip = true },
-    { message = "^feat.*([Bb]uild|[Dd]eploy|[Cc]i|[Cc]d)", skip = true },
-    { message = "^fix.*", skip = true },           # Skip regular bug fixes
-    { message = "^chore.*", skip = true },         # Skip maintenance
-    { message = "^ci.*", skip = true },            # Skip CI/CD
-    { message = "^build.*", skip = true },         # Skip build
-    { message = "^docs.*", skip = true },          # Skip documentation
-    { message = "^style.*", skip = true },         # Skip style changes
-    { message = "^refactor.*", skip = true },      # Skip refactoring
-    { message = "^test.*", skip = true },          # Skip testing
-    { message = ".*[Mm]erge.*", skip = true },     # Skip merge commits
-    { message = ".*[Bb]ump.*", skip = true },      # Skip version bumps
-    { message = ".*[Rr]elease.*", skip = true },   # Skip release commits
-    { message = ".*[Aa]uto.*", skip = true },      # Skip automated commits
-    { message = ".*[Dd]ependenc.*", skip = true }, # Skip dependency updates
+    # === PERFORMANCE - Speed and optimization ===
+    { message = "^perf", group = "⚡ Performance" },
+    { message = ".*[Pp]erformance.*", group = "⚡ Performance" },
+    { message = ".*[Ff]aster.*", group = "⚡ Performance" },
+    { message = ".*[Ss]peed.*", group = "⚡ Performance" },
+    { message = ".*[Oo]ptimiz.*", group = "⚡ Performance" },
+    { message = ".*[Qq]uicker.*", group = "⚡ Performance" },
+    
+    # === TECHNICAL - Keep some technical stuff but clean ===
+    { message = "^chore", group = "🔧 Technical" },
+    { message = "^build", group = "🔧 Technical" },
+    { message = "^docs", group = "🔧 Technical" },
+    { message = "^style", group = "🔧 Technical" },
+    { message = "^test", group = "🔧 Technical" },
+    { message = ".*[Tt]est.*", group = "🔧 Technical" },
+    { message = ".*[Dd]ocs.*", group = "🔧 Technical" },
+    { message = ".*[Cc]onfig.*", group = "🔧 Technical" },
+    
+    # === SKIP ONLY THE MOST TECHNICAL STUFF ===
+    { message = "^ci:", skip = true },
+    { message = ".*[Mm]erge.*branch.*", skip = true },
+    { message = ".*[Bb]ump.*version.*", skip = true },
+    { message = ".*[Aa]uto.*generated.*", skip = true },
+    { message = ".*[Dd]ependency.*update.*", skip = true },
+    { message = ".*[Nn]ode_modules.*", skip = true },
+    { message = ".*[Pp]ackage-lock.*", skip = true },
+    { message = ".*[Yy]arn.lock.*", skip = true },
+    { message = ".*[Bb]un.lockb.*", skip = true },
 ]
 
 commit_preprocessors = [
     # Clean up commit messages before processing
     { pattern = '^\[.*?\]\s*', replace = "" },                    # Remove [tags]
-    { pattern = '^(feat|fix|perf|chore|ci|build|docs|style|refactor|test)(\(.*?\))?\s*:\s*', replace = "" },  # Remove conventional prefixes
-    { pattern = '\s*\(#\d+\)$', replace = "" },                   # Remove PR numbers
+    { pattern = '\s*\(#\d+\)$', replace = "" },                   # Remove PR numbers at end
     { pattern = '\s*closes?\s+#\d+', replace = "" },              # Remove "closes #123"
     { pattern = '\s*fixes?\s+#\d+', replace = "" },               # Remove "fixes #123"
+    { pattern = '\s*refs?\s+#\d+', replace = "" },                # Remove "refs #123"
+    { pattern = '^\s+|\s+$', replace = "" },                      # Trim whitespace
 ] 
