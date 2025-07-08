@@ -217,6 +217,60 @@ def categorize_commit(commit: Dict[str, Any]) -> str:
     
     return '✨ Improvements'  # Default category
 
+def generate_markdown(categories: Dict[str, List[str]], version_info: str = None) -> str:
+    """
+    Generate clean markdown from categorized commits
+    """
+    content = []
+    
+    # Header
+    content.append("# 📚 StudiBudi Product Updates")
+    content.append("")
+    content.append("*Your AI-powered study companion keeps getting better! Here's what's new for students and educators.*")
+    content.append("")
+    content.append("---")
+    content.append("")
+    
+    # Add version information if available
+    if version_info:
+        content.append(f"## {version_info}")
+    else:
+        content.append("## Recent Updates")
+    content.append("")
+    
+    # Add categories with content
+    for category, items in categories.items():
+        if items:
+            content.append(f"### {category}")
+            content.append("")
+            
+            # Remove duplicates and sort
+            unique_items = list(set(items))
+            unique_items.sort()
+            
+            for item in unique_items:
+                content.append(f"- {item}")
+            content.append("")
+    
+    # Add message if no content
+    if not any(categories.values()):
+        content.append("### 📝 No Recent Updates")
+        content.append("")
+        content.append("*The changelog is being processed. Check back soon for the latest updates!*")
+        content.append("")
+    
+    # Footer - only include existing links
+    content.append("---")
+    content.append("")
+    content.append("### 🔗 Quick Links")
+    content.append("- **📧 [Feedback](mailto:feedback@studibudi.com)** - Tell us what you think")
+    content.append("")
+    content.append("---")
+    content.append("")
+    content.append(f"*Updated automatically • Last refresh: {datetime.now().strftime('%B %d, %Y')}*")
+    
+    return "\n".join(content)
+
 def process_changelog(json_file: str, output_file: str):
     """
     Process the JSON changelog and create a clean markdown file
@@ -241,9 +295,19 @@ def process_changelog(json_file: str, output_file: str):
     
     total_commits = 0
     filtered_commits = 0
+    version_info = None
     
     # Process each version
     for version_data in changelog_data:
+        # Get version information from the first version
+        if version_info is None and 'version' in version_data:
+            version = version_data['version']
+            if version and version != 'unreleased':
+                # Clean up version string
+                version_clean = version.replace('v', '').strip()
+                if version_clean:
+                    version_info = f"Release {version_clean}"
+        
         commits = version_data.get('commits', [])
         total_commits += len(commits)
         
@@ -267,8 +331,8 @@ def process_changelog(json_file: str, output_file: str):
             category = categorize_commit(commit)
             categories[category].append(cleaned_message)
     
-    # Generate markdown
-    markdown_content = generate_markdown(categories)
+    # Generate markdown with version info
+    markdown_content = generate_markdown(categories, version_info)
     
     # Write to file
     with open(output_file, 'w', encoding='utf-8') as f:
@@ -277,62 +341,13 @@ def process_changelog(json_file: str, output_file: str):
     print(f"✅ Processed {total_commits} commits")
     print(f"🗑️  Filtered out {filtered_commits} meaningless commits")
     print(f"📝 Generated clean changelog: {output_file}")
+    if version_info:
+        print(f"📦 Version: {version_info}")
     
     # Show category breakdown
     for category, items in categories.items():
         if items:
             print(f"{category}: {len(items)} items")
-
-def generate_markdown(categories: Dict[str, List[str]]) -> str:
-    """
-    Generate clean markdown from categorized commits
-    """
-    content = []
-    
-    # Header
-    content.append("# 📚 StudiBudi Product Updates")
-    content.append("")
-    content.append("*Your AI-powered study companion keeps getting better! Here's what's new for students and educators.*")
-    content.append("")
-    content.append("---")
-    content.append("")
-    content.append("## Recent Updates")
-    content.append("")
-    
-    # Add categories with content
-    for category, items in categories.items():
-        if items:
-            content.append(f"### {category}")
-            content.append("")
-            
-            # Remove duplicates and sort
-            unique_items = list(set(items))
-            unique_items.sort()
-            
-            for item in unique_items:
-                content.append(f"- {item}")
-            content.append("")
-    
-    # Add message if no content
-    if not any(categories.values()):
-        content.append("### 📝 No Recent Updates")
-        content.append("")
-        content.append("*The changelog is being processed. Check back soon for the latest updates!*")
-        content.append("")
-    
-    # Footer
-    content.append("---")
-    content.append("")
-    content.append("### 🔗 Quick Links")
-    content.append("- **📖 [User Guide](https://studibudi.com/docs)** - Learn how to use new features")
-    content.append("- **💬 [Support](https://studibudi.com/support)** - Get help from our team")
-    content.append("- **📧 [Feedback](mailto:feedback@studibudi.com)** - Tell us what you think")
-    content.append("")
-    content.append("---")
-    content.append("")
-    content.append(f"*Updated automatically • Last refresh: {datetime.now().strftime('%B %d, %Y')}*")
-    
-    return "\n".join(content)
 
 if __name__ == "__main__":
     # Process the changelog

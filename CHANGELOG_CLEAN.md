@@ -4,7 +4,7 @@
 
 ---
 
-## Recent Updates
+## Release 0.0.2
 
 ### 🚀 New Features
 
@@ -36,8 +36,6 @@
 ---
 
 ### 🔗 Quick Links
-- **📖 [User Guide](https://studibudi.com/docs)** - Learn how to use new features
-- **💬 [Support](https://studibudi.com/support)** - Get help from our team
 - **📧 [Feedback](mailto:feedback@studibudi.com)** - Tell us what you think
 
 ---
