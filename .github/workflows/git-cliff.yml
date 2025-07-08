@@ -30,15 +30,33 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
 
-      # Run git-cliff over both histories with new configuration
+      # Set up Python for the cleanup script
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Generate raw JSON changelog with git-cliff
       - uses: orhun/git-cliff-action@v2
         with:
           config: cliff.toml
           args: >
             --repository studibudi
             --repository studi-budi-ai-tutor
-            --output CHANGELOG.md
+            --output CHANGELOG_RAW.json
+            --format json
             --verbose
+
+      # Copy the raw JSON for processing
+      - name: Copy raw JSON for processing
+        run: cp CHANGELOG_RAW.json "CHANGELOG copy.json"
+
+      # Run Python cleanup script to generate clean markdown
+      - name: Generate clean changelog
+        run: python3 cleanup_changelog.py
+
+      # Use the cleaned changelog as the final output
+      - name: Use cleaned changelog
+        run: mv CHANGELOG_CLEAN.md CHANGELOG.md
 
       # Commit only if CHANGELOG.md changed
       - name: Commit changes
